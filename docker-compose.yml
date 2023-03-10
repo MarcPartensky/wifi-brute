@@ -3,5 +3,9 @@ services:
   wifi-brute:
     image: marcpartensky/wifi-brute
     build: .
+    network_mode: host
     volumes:
       - ./already_tried_password:/root/already_tried_password
+      # - /var/run/wpa_supplicant/wlan0:/var/run/wpa_supplicant/wlan0
+    cap_add:
+      - NET_ADMIN
