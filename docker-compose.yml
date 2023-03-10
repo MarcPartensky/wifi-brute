@@ -1,0 +1,7 @@
+version: "3.9"
+services:
+  wifi-bruteforce:
+    image: marcpartensky/wifi-bruteforce
+    build: .
+    volumes:
+      - ./already_tried_password:/root/already_tried_password
